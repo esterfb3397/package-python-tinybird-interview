@@ -2,6 +2,9 @@
 input/*.parquet
 output/*.parquet
 
+# Internal notes — not part of the public submission
+docs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

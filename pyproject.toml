@@ -1,21 +1,22 @@
 [project]
 name = "taxi-filter"
-version = "0.1.0"
+version = "0.1.2"
 description = "Filter NYC Yellow Taxi trips above the 90th percentile in trip distance"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0",
-    "pyarrow>=14.0",
-    "requests>=2.31",
+    "polars==1.38.1",
+    "requests==2.32.5",
+    "typer==0.24.1",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0",
+    "pytest==9.0.2",
+    "ruff==0.15.2",
 ]
 
 [project.scripts]
-taxi-filter = "taxi_filter.cli:main"
+taxi-filter = "taxi_filter.cli:app"
 
 [build-system]
 requires = ["hatchling"]
@@ -23,3 +24,18 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/taxi_filter"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+
+[tool.ruff.format]
+quote-style = "double"
