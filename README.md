@@ -1,4 +1,4 @@
-# NYC Yellow Taxi — P90 Trip Distance Filter
+# NYC Yellow Taxi: P90 Trip Distance Filter
 
 Filters NYC Yellow Taxi trips above the **90th percentile** in `trip_distance` for a given parquet file. One file is processed per execution and the result is saved as a parquet file.
 
@@ -21,7 +21,7 @@ Filters NYC Yellow Taxi trips above the **90th percentile** in `trip_distance` f
 
 ## Requirements
 
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) — Python package manager
+- [uv](https://docs.astral.sh/uv/getting-started/installation/): Python package manager
 
 ## Setup
 
@@ -90,7 +90,7 @@ Output saved to : output/yellow_tripdata_2025-01_p90.parquet
 ## Run tests and linting
 
 ```bash
-uv run pytest tests/ -v      # run tests
+uv run pytest tests/ -v       # run tests
 uv run ruff check src/ tests/ # lint
 uv run ruff format src/ tests/ # format
 ```
@@ -102,21 +102,21 @@ The test suite covers 5 cases, all using synthetic data (no real parquet files r
 | `test_load_local_file` | Reads a local parquet file and loads it into the processor |
 | `test_lf_not_loaded_raises` | Accessing data before `load()` raises a clear error |
 | `test_filter_above_percentile` | P90 filter keeps exactly the top 10% of trips |
-| `test_load_from_url` | URL path works correctly — `requests.get` is mocked, no network needed |
+| `test_load_from_url` | URL path works correctly (`requests.get` is mocked, no network needed) |
 | `test_save_parquet` | Output file is a valid parquet with the expected rows and columns |
 
 ## Approach
 
-1. **Input**: accepts a local `.parquet` file path or a URL. When a URL is provided, the file is downloaded in-memory (`io.BytesIO`) and never written to disk. This keeps the tool stateless — it produces exactly one output and no side effects. For repeated runs on the same file, downloading it once to `input/` and using the local path is the recommended workflow.
+1. **Input**: accepts a local `.parquet` file path or a URL. When a URL is provided, the file is downloaded in-memory (`io.BytesIO`) and never written to disk. This keeps the tool stateless, producing exactly one output with no side effects. For repeated runs on the same file, downloading it once to `input/` and using the local path is the recommended workflow.
 2. **Filter**: computes the P90 threshold on `trip_distance` using Polars `quantile(0.9)` and keeps only rows strictly above it. Both the total row count and the threshold are computed in a single scan before filtering. The threshold is printed so the result is transparent and auditable.
 3. **Output**: writes the filtered data to a parquet file using Polars `sink_parquet`, which streams the result to disk without loading the full dataset into memory. The output directory is created automatically if it does not exist.
 
 ### Why these libraries?
 
-| Library   | Reason |
-|-----------|--------|
-| `polars`  | Lazy evaluation via `scan_parquet` + `sink_parquet` — processes files in streaming chunks, safe for files larger than available RAM |
-| `requests`| Simple HTTP downloads with custom headers; no extra setup vs `urllib` |
-| `typer`   | Declarative CLI built on type hints — auto-generates `--help`, argument validation, and shell completion with no boilerplate |
-| `pytest`  | Standard test framework, integrates with `uv` |
-| `ruff`    | Fast Python linter and formatter — enforces code style and catches issues in one tool |
+| Library    | Reason |
+|------------|--------|
+| `polars`   | Lazy evaluation via `scan_parquet` + `sink_parquet`, processes files in streaming chunks, safe for files larger than available RAM |
+| `requests` | Simple HTTP downloads with custom headers, no extra setup vs `urllib` |
+| `typer`    | Declarative CLI built on type hints, auto-generates `--help`, argument validation, and shell completion with no boilerplate |
+| `pytest`   | Standard test framework, integrates with `uv` |
+| `ruff`     | Fast Python linter and formatter, enforces code style and catches issues in one tool |
